@@ -47,5 +47,17 @@ describe('Health Endpoint', () => {
       const timestamp = response.body.data.timestamp;
       expect(() => new Date(timestamp)).not.toThrow();
     });
+
+    it('should return healthy status in mock mode', async () => {
+      // Set mock mode for testing
+      process.env.AI_MOCK_MODE = 'true';
+
+      const response = await request(app)
+        .get(`${config.server.apiPrefix}/health`)
+        .expect(200);
+
+      expect(response.body.data.status).toBe('healthy');
+      expect(response.body.data.services.ollama).toBe('connected');
+    });
   });
 });

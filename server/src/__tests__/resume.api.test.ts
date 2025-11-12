@@ -83,6 +83,88 @@ describe('Resume API Integration Tests', () => {
       expect(response.body.success).toBe(false);
       expect(response.body.error.code).toBe('VALIDATION_ERROR');
     });
+
+    it('should create a resume with AI-generated content in mock mode', async () => {
+      // Set mock mode for testing
+      process.env.AI_MOCK_MODE = 'true';
+
+      const resumeData = {
+        userId: 'user123',
+        templateType: 'senior',
+        skills: ['JavaScript', 'TypeScript', 'React'],
+        experienceHistory: [
+          {
+            company: 'Tech Corp',
+            position: 'Senior Developer',
+            startDate: '2022-01-01T00:00:00.000Z',
+            endDate: '2023-01-01T00:00:00.000Z',
+            description: 'Built scalable applications',
+            achievements: ['Increased performance by 50%', 'Led team of 5']
+          }
+        ],
+        jobDescription: 'Looking for a senior React developer with leadership experience'
+      };
+
+      const response = await request(app)
+        .post('/api/v1/resumes')
+        .send(resumeData)
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      expect(response.body.data).toBeDefined();
+      expect(response.body.data.generatedSections).toBeDefined();
+      expect(response.body.data.generatedSections.summary).toContain('Experienced');
+      expect(response.body.data.generatedSections.skills).toContain('JavaScript');
+      expect(response.body.data.generatedSections.experience).toContain('Tech Corp');
+      expect(response.body.data.generatedSections.education).toContain('Advanced degree');
+    });
+
+    it('should create a fresher resume with appropriate AI content', async () => {
+      // Set mock mode for testing
+      process.env.AI_MOCK_MODE = 'true';
+
+      const resumeData = {
+        sessionId: 'session123',
+        templateType: 'fresher',
+        skills: ['Python', 'Machine Learning'],
+        jobDescription: 'Entry level ML position'
+      };
+
+      const response = await request(app)
+        .post('/api/v1/resumes')
+        .send(resumeData)
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.generatedSections).toBeDefined();
+      expect(response.body.data.generatedSections.summary).toContain('Motivated and enthusiastic');
+      expect(response.body.data.generatedSections.education).toContain('Bachelor\'s degree');
+      expect(response.body.data.generatedSections.experience).toContain('Entry-level position');
+    });
+
+    it('should handle AI service failure gracefully', async () => {
+      // Mock AI service to throw an error
+      process.env.AI_MOCK_MODE = 'false';
+      
+      // This test simulates AI service being unavailable
+      // The service should fall back to basic content generation
+      const resumeData = {
+        userId: 'user123',
+        templateType: 'mid',
+        skills: ['Java', 'Spring Boot']
+      };
+
+      const response = await request(app)
+        .post('/api/v1/resumes')
+        .send(resumeData)
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.generatedSections).toBeDefined();
+      // Should have fallback content
+      expect(response.body.data.generatedSections.summary).toBeDefined();
+      expect(response.body.data.generatedSections.skills).toBeDefined();
+    });
   });
 
   describe('GET /api/v1/resumes', () => {

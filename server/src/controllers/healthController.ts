@@ -3,24 +3,26 @@ import { sendSuccess } from '../utils/response';
 import { HealthResponse } from '../types';
 import config from '../config';
 import DatabaseConnection from '../config/database';
+import aiService from '../services/aiService';
 
 export const getHealth = async (req: Request, res: Response): Promise<void> => {
   try {
-    // Check Ollama service (basic connectivity check)
+    // Check AI service health
     let ollamaStatus: 'connected' | 'disconnected' = 'disconnected';
     try {
-      const ollamaResponse = await fetch(`${config.ollama.baseUrl}/api/tags`);
-      if (ollamaResponse.ok) {
-        ollamaStatus = 'connected';
-      }
+      const isAiHealthy = await aiService.checkHealth();
+      ollamaStatus = isAiHealthy ? 'connected' : 'disconnected';
     } catch (error) {
-      // Ollama is not available
+      // AI service is not available
+      ollamaStatus = 'disconnected';
     }
 
     // Check database status
     const databaseStatus = DatabaseConnection.getInstance().getConnectionHealth();
 
-    const isHealthy = ollamaStatus === 'connected' || databaseStatus === 'connected';
+    // Consider service healthy if at least one critical service is available
+    // or if we're in mock mode (which means AI service is intentionally mocked)
+    const isHealthy = (ollamaStatus === 'connected' || databaseStatus === 'connected') || aiService.isMockMode();
 
     const healthData: HealthResponse = {
       status: isHealthy ? 'healthy' : 'unhealthy',
