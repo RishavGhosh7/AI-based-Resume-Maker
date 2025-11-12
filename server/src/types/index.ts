@@ -1,3 +1,5 @@
+import { Request } from 'express';
+
 export interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;
@@ -44,4 +46,56 @@ export interface PaginatedResponse<T> {
     hasNext: boolean;
     hasPrev: boolean;
   };
+}
+
+export interface ResumeDto {
+  id: string;
+  userId?: string;
+  sessionId?: string;
+  templateType: 'fresher' | 'mid' | 'senior';
+  skills: string[];
+  experienceHistory: ExperienceHistoryDto[];
+  jobDescription?: string;
+  generatedSections: GeneratedSectionsDto;
+  metadata: {
+    createdAt: string;
+    updatedAt: string;
+    version: number;
+    isEditable: boolean;
+  };
+}
+
+export interface ExperienceHistoryDto {
+  company: string;
+  position: string;
+  startDate: string;
+  endDate?: string;
+  description?: string;
+  achievements?: string[];
+}
+
+export interface GeneratedSectionsDto {
+  summary?: string;
+  skills?: string;
+  experience?: string;
+  education?: string;
+}
+
+export interface CreateResumeRequest {
+  userId?: string;
+  sessionId?: string;
+  templateType?: 'fresher' | 'mid' | 'senior';
+  skills: string[];
+  experienceHistory?: ExperienceHistoryDto[];
+  jobDescription?: string;
+  generatedSections?: GeneratedSectionsDto;
+}
+
+export interface UpdateResumeRequest {
+  templateType?: 'fresher' | 'mid' | 'senior';
+  skills?: string[];
+  experienceHistory?: ExperienceHistoryDto[];
+  jobDescription?: string;
+  generatedSections?: GeneratedSectionsDto;
+  isEditable?: boolean;
 }
