@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { sendSuccess } from '../utils/response';
 import { HealthResponse } from '../types';
 import config from '../config';
+import DatabaseConnection from '../config/database';
 
 export const getHealth = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -16,11 +17,13 @@ export const getHealth = async (req: Request, res: Response): Promise<void> => {
       // Ollama is not available
     }
 
-    // Database status placeholder (will be implemented when DB is added)
-    const databaseStatus: 'connected' | 'disconnected' = 'disconnected';
+    // Check database status
+    const databaseStatus = DatabaseConnection.getInstance().getConnectionHealth();
+
+    const isHealthy = ollamaStatus === 'connected' || databaseStatus === 'connected';
 
     const healthData: HealthResponse = {
-      status: 'healthy',
+      status: isHealthy ? 'healthy' : 'unhealthy',
       uptime: process.uptime(),
       timestamp: new Date().toISOString(),
       version: process.env.npm_package_version || '1.0.0',
