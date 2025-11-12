@@ -1,3 +1,5 @@
+import { Request } from 'express';
+
 export interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;
@@ -25,6 +27,7 @@ export interface HealthResponse {
 
 export interface RequestWithUser extends Request {
   user?: unknown;
+  sessionId?: string;
 }
 
 export interface PaginationQuery {
@@ -44,4 +47,39 @@ export interface PaginatedResponse<T> {
     hasNext: boolean;
     hasPrev: boolean;
   };
+}
+
+export interface ResumeContent {
+  summary?: string;
+  sections?: Record<string, unknown>;
+  [key: string]: unknown;
+}
+
+export interface Resume {
+  id: string;
+  sessionId: string;
+  title: string;
+  content: ResumeContent;
+  template: string;
+  skills: string[];
+  experience: string;
+  jobDescription: string;
+  templateType: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface CreateResumePayload {
+  title: string;
+  content: ResumeContent;
+  skills: string[];
+  experience: string;
+  jobDescription: string;
+  templateType: string;
+}
+
+export interface UpdateResumePayload {
+  title?: string;
+  content?: ResumeContent;
+  template?: string;
 }

@@ -39,7 +39,8 @@ describe('Error Handling', () => {
         .expect(200);
 
       expect(response.body).toHaveProperty('success', true);
-      expect(response.body.data).toEqual([]);
+      expect(response.body.data).toHaveProperty('data', []);
+      expect(response.body.data).toHaveProperty('pagination');
     });
   });
 
