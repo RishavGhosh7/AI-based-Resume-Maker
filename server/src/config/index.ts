@@ -4,7 +4,7 @@ dotenv.config();
 
 export const config = {
   server: {
-    port: parseInt(process.env.PORT || '3000', 10),
+    port: parseInt(process.env.PORT || '5000', 10),
     env: process.env.NODE_ENV || 'development',
     apiPrefix: process.env.API_PREFIX || '/api/v1',
   },
@@ -13,11 +13,7 @@ export const config = {
     model: process.env.OLLAMA_MODEL || 'llama2',
   },
   database: {
-    host: process.env.DB_HOST || 'localhost',
-    port: parseInt(process.env.DB_PORT || '5432', 10),
-    name: process.env.DB_NAME || 'resume_maker',
-    user: process.env.DB_USER || 'postgres',
-    password: process.env.DB_PASSWORD || 'password',
+    mongoUri: process.env.MONGO_URI || 'mongodb://localhost:27017/ai-resume-maker',
   },
   cors: {
     origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
